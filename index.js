@@ -1,55 +1,82 @@
-function saludo() {
-    alert('Bienvenido a Stock-Plus')
-}
-
-function ioncorrecto(){
-    alert('El Dato Ingresado es Incorrecto')
-}
-
-saludo()
-let nombre = prompt('Ingrese su nombre:')
+const productos = [];
+let tabla;
+let textoTotalCompra;
+let textoTotalVenta;
+let textoTotalGanancia;
 
 class Producto {
-    constructor(nombre, precio,cantidad){
-        this.nombre = nombre
-        this.precio = parseFloat(nombre)
-        this.cantidad = cantidad
-        this.disponible = true
+    constructor(nombre, precioCompra, precioVenta, cantidad) {
+        this.nombre = nombre.toUpperCase();
+        this.precioCompra = precioCompra;
+        this.precioVenta = precioVenta;
+        this.cantidad = cantidad;
     }
-    sumarIvaVeintiUno(){
-        return this.precio * 1,21
-    }
-    vender(){
-        this.disponible = false   
-    }
-    precioVenta(){
-        return this.precio * 1,21 * 1,15
+    calcularPrecioCompra = () => this.precioCompra * this.cantidad;
+    calcularPrecioVenta = () => this.precioVenta * this.cantidad;
+}
 
+
+function inicializarElementos() {
+    tabla = document.getElementById("tabla-productos");
+    textoTotalCompra = document.querySelector("#totalCompra span");
+    textoTotalVenta = document.querySelector("#totalVenta span");
+    textoTotalGanancia = document.querySelector("#totalGanancia span");
+}
+
+function registrarProductos() {
+    let numeroProductos = parseInt(prompt("Cuantos productos va a registrar?"));
+    for (let index = 0; index < numeroProductos; index++) {
+        let nombre = prompt("Ingrese el nombre");
+        let precioCompra = parseFloat(prompt("Ingrese el precio de compra"));
+        let precioVenta = parseFloat(prompt("Ingrese el precio de venta"));
+        let cantidad = parseInt(prompt("Ingrese lancantidad"));
+        let productoARegistrar = new Producto(
+            nombre,
+            precioCompra,
+            precioVenta,
+            cantidad
+        );
+        productos.push(productoARegistrar);
     }
 }
 
-const arrayProductos = []
-do{
-    let ingresoProducto = prompt('Hola '+nombre.toLocaleUpperCase()+ ' Ingrese nombre de Producto a agregar (listo) para terminar')
-    if (ingresoProducto === 'listo' || ingresoProducto === "LISTO" || ingresoProducto === 'Listo'){
-        break;
-    }else {
-        let nombreP = ingresoProducto
-        let precioP = prompt('Ingrese Costo del Producto')
-        let cantidadP = prompt('Ingrese Cantidad del Producto')
-        arrayProductos.push(new Producto(nombreP, precioP, cantidadP))
-    }
+function agregarProductosTabla() {
+    productos.forEach((producto) => {
+        let filaTabla = document.createElement("tr");
+        filaTabla.innerHTML = `
+        <td>${producto.nombre}</td>
+        <td>${producto.precioCompra}</td>
+        <td>${producto.precioVenta}</td>
+        <td>${producto.cantidad}</td>`;
+        tabla.tBodies[0].append(filaTabla);
+    });
 }
-while (ingresoProducto != 'listo' || ingresoProducto != "LISTO" || ingresoProducto != 'Listo'){
 
-console.log(arrayProductos)
+function calcularTotales() {
+    let totalCompra = 0;
+    let totalVenta = 0;
 
+    totalCompra = productos.reduce(
+        (acumulador, item) => acumulador + item.calcularPrecioCompra(),
+        0
+    );
 
+    totalVenta = productos.reduce(
+        (acumulador, item) => acumulador + item.calcularPrecioVenta(),
+        0
+    );
 
-for (let producto of arrayProductos) {
-    document.write('<ul><li><h3>Nombre: ' + producto.nombre + '</h3></li>')
-    document.write('<li><h3>Cantindad: ' + producto.cantidad + '</h3></li>')
-    document.write('<li><h3>Precio: ' + producto.precio + '</h3></li>')
-    document.write('<li><h3>Precio de Venta es: ' + producto.precioVenta() + '</h3></li></ul>')
+    textoTotalCompra.innerText = totalCompra;
+    textoTotalVenta.innerText = totalVenta;
+    textoTotalGanancia.innerText = totalVenta - totalCompra;
+
 }
+
+function main() {
+    inicializarElementos();
+    registrarProductos();
+    agregarProductosTabla();
+    calcularTotales();
 }
+
+main();
